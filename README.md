@@ -8,8 +8,8 @@ Application takes list of files:
 ```
 ## Main features
 * console user-friendly interface
-* sorting loaded log
-* filtering it (regex)
+* sorting loaded logs
+* filtering them (regex)
 * coloured logs per file
 
 ## Note
