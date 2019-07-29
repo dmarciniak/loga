@@ -4,14 +4,15 @@ import (
 	"strconv"
 )
 
-var backgroundColors = [...]int{41, 42, 43, 44, 45, 46, 47}
-
-func legendSmall(index int) string {
-	return "\u001b[" + strconv.Itoa(backgroundColors[index+1%len(backgroundColors)]) + "m \x1b[0m "
-}
+var backgroundColors = [...]int{41, 42, 43, 44, 45, 46}
 
 func legend(index int) string {
-	return "\u001b[" + strconv.Itoa(backgroundColors[index+1%len(backgroundColors)]) + "m  \x1b[0m "
+	loopNumber := index / len(backgroundColors)
+	filling := " "
+	if loopNumber > 0 {
+		filling = strconv.Itoa(loopNumber)
+	}
+	return "\u001b[" + strconv.Itoa(backgroundColors[index%len(backgroundColors)]) + "m" + filling + "\x1b[0m "
 }
 
 func formatedFilter(str string) string {

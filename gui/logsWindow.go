@@ -143,10 +143,10 @@ func writeLogs(g *gocui.Gui, output <-chan loge.LogEntry) {
 			}
 
 			if entry.IsEmptyDate() {
-				fmt.Fprintln(v, legendSmall(entry.FileID)+formatedLogWithoutDate(formatedLog))
+				fmt.Fprintln(v, legend(entry.FileID)+formatedLogWithoutDate(formatedLog))
 			} else {
 				formatedLog = strings.Replace(formatedLog, entry.RawDate, formatedDate(entry.RawDate), -1)
-				fmt.Fprintln(v, legendSmall(entry.FileID)+formatedLog)
+				fmt.Fprintln(v, legend(entry.FileID)+formatedLog)
 			}
 		}
 		return nil
