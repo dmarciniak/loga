@@ -1,8 +1,13 @@
 package gui
 
+import (
+	"github.com/dmarciniak/loge"
+)
+
 type context struct {
 	filenames []string
 	filter    string
+	output    <-chan loge.LogEntry
 }
 
 var ctx context

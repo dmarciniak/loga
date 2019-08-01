@@ -1,11 +1,22 @@
 package gui
 
 import (
+	"strconv"
 	"fmt"
 	"github.com/jroimartin/gocui"
 	"github.com/dmarciniak/loge"
 	"regexp"
 	"strings"
+	"sync"
+)
+
+const (
+	logsLimit = 1000
+)
+
+var (
+	isAllLogLoaded = false
+	logsLoadingMutex sync.Mutex
 )
 
 func logsDraw(g *gocui.Gui) error {
@@ -43,6 +54,9 @@ func logsEvents(g *gocui.Gui) error {
 	if err := g.SetKeybinding(viewLogs, gocui.KeyPgup, gocui.ModNone, scrollPgupLogs); err != nil {
 		return err
 	}
+	if err := g.SetKeybinding("", gocui.KeyCtrlN, gocui.ModNone, loadNextLogs); err != nil {
+		return err
+	}
 	return nil
 }
 
@@ -78,6 +92,11 @@ func scrollRightLogs(g *gocui.Gui, _ *gocui.View) error {
 	return nil
 }
 
+func loadNextLogs(g *gocui.Gui, _ *gocui.View) error {
+	writeLogs(g, ctx.output)
+	return nil
+}
+
 func resetLogsScreen(g *gocui.Gui) {
 	g.Update(func(g *gocui.Gui) error {
 		v, err := g.View(viewLogs)
@@ -85,6 +104,8 @@ func resetLogsScreen(g *gocui.Gui) {
 			return err
 		}
 		v.SetOrigin(0, 0)
+		v.Clear()
+		isAllLogLoaded = false
 		return nil
 	})
 }
@@ -103,17 +124,26 @@ func moveLogsScreen(g *gocui.Gui, moveX, moveY int) {
 }
 
 func reloadLogs(g *gocui.Gui, _ *gocui.View) error {
-	output := loge.LogLoader(ctx.filenames)
+	ctx.output = loge.LogLoader(ctx.filenames)
 	resetLogsScreen(g)
-	writeLogs(g, output)
+	writeLogs(g, ctx.output)
 	return nil
 }
 
 func writeLogs(g *gocui.Gui, output <-chan loge.LogEntry) {
 	g.Update(func(g *gocui.Gui) error {
+
+		logsLoadingMutex.Lock()
+		defer logsLoadingMutex.Unlock()
+
 		v, err := g.View(viewLogs)
 		if err != nil {
 			return err
+		}
+
+		if isAllLogLoaded {
+			fmt.Fprintln(v, formatedAlert("All logs loaded"));
+			return nil
 		}
 
 		var rgx *regexp.Regexp
@@ -125,9 +155,14 @@ func writeLogs(g *gocui.Gui, output <-chan loge.LogEntry) {
 			}
 		}
 
-		v.Clear()
+		for i := 0; i < logsLimit; i++ {
+			entry := <-output
 
-		for entry := <-output; !entry.IsEOF(); entry = <-output {
+			if entry.IsEOF() {
+				isAllLogLoaded = true
+				return nil
+			}
+
 			formatedLog := entry.Log
 
 			findedString := ""
@@ -149,6 +184,11 @@ func writeLogs(g *gocui.Gui, output <-chan loge.LogEntry) {
 				fmt.Fprintln(v, legend(entry.FileID)+formatedLog)
 			}
 		}
+
+		if !isAllLogLoaded {
+			fmt.Fprintln(v, formatedAlert("Loaded " + strconv.Itoa(logsLimit) + " logs. Press ctrl + n to load next logs"));
+		}
+
 		return nil
 	})
 }
