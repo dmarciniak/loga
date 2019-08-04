@@ -155,7 +155,7 @@ func writeLogs(g *gocui.Gui, output <-chan loge.LogEntry) {
 			}
 		}
 
-		for i := 0; i < logsLimit; i++ {
+		for i := 0; i <= logsLimit; {
 			entry := <-output
 
 			if entry.IsEOF() {
@@ -183,6 +183,7 @@ func writeLogs(g *gocui.Gui, output <-chan loge.LogEntry) {
 				formatedLog = strings.Replace(formatedLog, entry.RawDate, formatedDate(entry.RawDate), -1)
 				fmt.Fprintln(v, legend(entry.FileID)+formatedLog)
 			}
+			i++
 		}
 
 		if !isAllLogLoaded {
