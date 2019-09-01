@@ -10,6 +10,7 @@ Application takes list of files:
 * console user-friendly interface
 * sorting loaded logs
 * filtering them (regex)
+* popup window to show all logs from one file (selected by current log line)
 * coloured logs per file
 
 ## Screenshots
