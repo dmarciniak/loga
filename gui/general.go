@@ -8,13 +8,14 @@ import (
 const (
 	viewFiles       = "files"
 	viewLogs        = "logs"
+	viewFileLogsPopup    = "fileLogsPopup"
 	viewFilter      = "filter"
 	viewHelp        = "help"
 	viewFilterPopup = "filterPopup"
 
 	vSeparator       = 30
 	filterViewHeight = 3
-	helpViewHeight   = 4
+	helpViewHeight   = 5
 )
 
 type view struct {

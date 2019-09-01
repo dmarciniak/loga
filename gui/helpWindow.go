@@ -6,6 +6,7 @@ import (
 )
 
 const (
+	textShowFile = " enter to show whole file"
 	textResetKeys = " ctrl + r to reset"
 	textQuitKeys  = " ctrl + c to quit"
 )
@@ -19,6 +20,7 @@ func helpDraw(g *gocui.Gui) error {
 		v.Title = viewHelp
 		v.Editable = false
 		v.Wrap = false
+		fmt.Fprintln(v, textShowFile)
 		fmt.Fprintln(v, textResetKeys)
 		fmt.Fprintln(v, textQuitKeys)
 	}
@@ -29,7 +31,7 @@ func helpEvents(g *gocui.Gui) error {
 	if err := g.SetKeybinding("", gocui.KeyCtrlR, gocui.ModNone, reset); err != nil {
 		return err
 	}
-	if err := g.SetKeybinding("", gocui.KeyCtrlC, gocui.ModNone, quit); err != nil {
+	if err := g.SetKeybinding(viewLogs, gocui.KeyCtrlC, gocui.ModNone, quit); err != nil {
 		return err
 	}
 	return nil

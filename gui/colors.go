@@ -30,3 +30,7 @@ func formatedLogWithoutDate(str string) string {
 func formatedAlert(str string) string {
 	return "\u001b[31m" + str + "\u001b[0m"
 }
+
+func formatedCurrentLine(str string) string {
+	return "\u001b[37;1m" + str + "\u001b[0m"
+}

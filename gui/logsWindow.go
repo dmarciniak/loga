@@ -15,6 +15,7 @@ const (
 )
 
 var (
+	line = 0
 	isAllLogLoaded = false
 	logsLoadingMutex sync.Mutex
 )
@@ -54,41 +55,52 @@ func logsEvents(g *gocui.Gui) error {
 	if err := g.SetKeybinding(viewLogs, gocui.KeyPgup, gocui.ModNone, scrollPgupLogs); err != nil {
 		return err
 	}
-	if err := g.SetKeybinding("", gocui.KeyCtrlN, gocui.ModNone, loadNextLogs); err != nil {
+	if err := g.SetKeybinding(viewLogs, gocui.KeyEnter, gocui.ModNone, openFileLogWindow); err != nil {
 		return err
 	}
+	if err := g.SetKeybinding(viewLogs, gocui.KeyCtrlN, gocui.ModNone, loadNextLogs); err != nil {
+		return err
+	}
+
+	return logsPopupEvents(g)
+}
+
+func openFileLogWindow(g *gocui.Gui, v *gocui.View) error {
+	_, originY := v.Origin()
+	_, cursorY := v.Cursor()
+	showFileLogs(g, lines[originY + cursorY])
 	return nil
 }
 
-func scrollUpLogs(g *gocui.Gui, _ *gocui.View) error {
-	moveLogsScreen(g, 0, -1)
+func scrollUpLogs(g *gocui.Gui, v *gocui.View) error {
+	moveLogsCursor(g, v, 0, -1)
 	return nil
 }
 
-func scrollDownLogs(g *gocui.Gui, _ *gocui.View) error {
-	moveLogsScreen(g, 0, 1)
+func scrollDownLogs(g *gocui.Gui, v *gocui.View) error {
+	moveLogsCursor(g, v, 0, 1)
 	return nil
 }
 
-func scrollPgupLogs(g *gocui.Gui, _ *gocui.View) error {
+func scrollPgupLogs(g *gocui.Gui, v *gocui.View) error {
 	_, maxY := g.Size()
-	moveLogsScreen(g, 0, -(maxY - 2))
+	moveLogsScreen(g, v, 0, -(maxY - 2))
 	return nil
 }
 
-func scrollPgdnLogs(g *gocui.Gui, _ *gocui.View) error {
+func scrollPgdnLogs(g *gocui.Gui, v *gocui.View) error {
 	_, maxY := g.Size()
-	moveLogsScreen(g, 0, maxY-2)
+	moveLogsScreen(g, v, 0, maxY-2)
 	return nil
 }
 
-func scrollLeftLogs(g *gocui.Gui, _ *gocui.View) error {
-	moveLogsScreen(g, -1, 0)
+func scrollLeftLogs(g *gocui.Gui, v *gocui.View) error {
+	moveLogsScreen(g, v, -1, 0)
 	return nil
 }
 
-func scrollRightLogs(g *gocui.Gui, _ *gocui.View) error {
-	moveLogsScreen(g, 1, 0)
+func scrollRightLogs(g *gocui.Gui, v *gocui.View) error {
+	moveLogsScreen(g, v, 1, 0)
 	return nil
 }
 
@@ -106,19 +118,23 @@ func resetLogsScreen(g *gocui.Gui) {
 		v.SetOrigin(0, 0)
 		v.Clear()
 		isAllLogLoaded = false
+		lines = make(map[int]lineInfo, logsLimit)
+		line = 0
 		return nil
 	})
 }
 
-func moveLogsScreen(g *gocui.Gui, moveX, moveY int) {
+func moveLogsScreen(g *gocui.Gui, v *gocui.View, moveX, moveY int) {
 	g.Update(func(g *gocui.Gui) error {
-		v, err := g.View(viewLogs)
-		if err != nil {
-			return err
-		}
-
 		x, y := v.Origin()
 		v.SetOrigin(x+moveX, y+moveY)
+		return nil
+	})
+}
+
+func moveLogsCursor(g *gocui.Gui, v *gocui.View, moveX, moveY int) {
+	g.Update(func(g *gocui.Gui) error {
+		v.MoveCursor(moveX, moveY, false)
 		return nil
 	})
 }
@@ -143,6 +159,7 @@ func writeLogs(g *gocui.Gui, output <-chan loge.LogEntry) {
 
 		if isAllLogLoaded {
 			fmt.Fprintln(v, formatedAlert("All logs loaded"));
+			line++
 			return nil
 		}
 
@@ -179,15 +196,20 @@ func writeLogs(g *gocui.Gui, output <-chan loge.LogEntry) {
 
 			if entry.IsEmptyDate() {
 				fmt.Fprintln(v, legend(entry.FileID)+formatedLogWithoutDate(formatedLog))
+				lines[line] = lineInfo{fileIndex: entry.FileID, fileLineNumber: entry.LineNo}
+				line++
 			} else {
 				formatedLog = strings.Replace(formatedLog, entry.RawDate, formatedDate(entry.RawDate), -1)
 				fmt.Fprintln(v, legend(entry.FileID)+formatedLog)
+				lines[line] = lineInfo{fileIndex: entry.FileID, fileLineNumber: entry.LineNo}
+				line++
 			}
 			i++
 		}
 
 		if !isAllLogLoaded {
 			fmt.Fprintln(v, formatedAlert("Loaded " + strconv.Itoa(logsLimit) + " logs. Press ctrl + n to load next logs"));
+			line++
 		}
 
 		return nil
