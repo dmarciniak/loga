@@ -11,7 +11,7 @@ type context struct {
 }
 
 type lineInfo struct {
-	fileIndex int
+	fileIndex      int
 	fileLineNumber int
 }
 

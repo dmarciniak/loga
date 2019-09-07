@@ -1,11 +1,11 @@
 package gui
 
 import (
-	"strconv"
 	"fmt"
-	"github.com/jroimartin/gocui"
 	"github.com/dmarciniak/loge"
+	"github.com/jroimartin/gocui"
 	"regexp"
+	"strconv"
 	"strings"
 	"sync"
 )
@@ -15,8 +15,8 @@ const (
 )
 
 var (
-	line = 0
-	isAllLogLoaded = false
+	line             = 0
+	isAllLogLoaded   = false
 	logsLoadingMutex sync.Mutex
 )
 
@@ -68,7 +68,7 @@ func logsEvents(g *gocui.Gui) error {
 func openFileLogWindow(g *gocui.Gui, v *gocui.View) error {
 	_, originY := v.Origin()
 	_, cursorY := v.Cursor()
-	showFileLogs(g, lines[originY + cursorY])
+	showFileLogs(g, lines[originY+cursorY])
 	return nil
 }
 
@@ -158,7 +158,7 @@ func writeLogs(g *gocui.Gui, output <-chan loge.LogEntry) {
 		}
 
 		if isAllLogLoaded {
-			fmt.Fprintln(v, formatedAlert("All logs loaded"));
+			fmt.Fprintln(v, formatedAlert("All logs loaded"))
 			line++
 			return nil
 		}
@@ -208,7 +208,7 @@ func writeLogs(g *gocui.Gui, output <-chan loge.LogEntry) {
 		}
 
 		if !isAllLogLoaded {
-			fmt.Fprintln(v, formatedAlert("Loaded " + strconv.Itoa(logsLimit) + " logs. Press ctrl + n to load next logs"));
+			fmt.Fprintln(v, formatedAlert("Loaded "+strconv.Itoa(logsLimit)+" logs. Press ctrl + n to load next logs"))
 			line++
 		}
 

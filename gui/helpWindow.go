@@ -6,7 +6,7 @@ import (
 )
 
 const (
-	textShowFile = " enter to show whole file"
+	textShowFile  = " enter to show whole file"
 	textResetKeys = " ctrl + r to reset"
 	textQuitKeys  = " ctrl + c to quit"
 )

@@ -6,12 +6,12 @@ import (
 )
 
 const (
-	viewFiles       = "files"
-	viewLogs        = "logs"
-	viewFileLogsPopup    = "fileLogsPopup"
-	viewFilter      = "filter"
-	viewHelp        = "help"
-	viewFilterPopup = "filterPopup"
+	viewFiles         = "files"
+	viewLogs          = "logs"
+	viewFileLogsPopup = "fileLogsPopup"
+	viewFilter        = "filter"
+	viewHelp          = "help"
+	viewFilterPopup   = "filterPopup"
 
 	vSeparator       = 30
 	filterViewHeight = 3

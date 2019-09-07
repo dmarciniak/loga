@@ -2,9 +2,9 @@ package gui
 
 import (
 	"fmt"
-	"strings"
-	"github.com/jroimartin/gocui"
 	"github.com/dmarciniak/loge"
+	"github.com/jroimartin/gocui"
+	"strings"
 )
 
 func showFileLogs(g *gocui.Gui, line lineInfo) error {
@@ -32,7 +32,7 @@ func showFileLogs(g *gocui.Gui, line lineInfo) error {
 			} else {
 				currentLog = strings.Replace(currentLog, entry.RawDate, formatedDate(entry.RawDate), -1)
 			}
-			
+
 			fmt.Fprintln(v, currentLog)
 		}
 		v.SetOrigin(0, line.fileLineNumber)
@@ -74,5 +74,3 @@ func closeFileLogs(g *gocui.Gui, v *gocui.View) error {
 	}
 	return nil
 }
-
-
