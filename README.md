@@ -1,4 +1,7 @@
 # loga (log-analizer)
+
+[![Go Report Card](https://goreportcard.com/badge/github.com/dmarciniak/loga)](https://goreportcard.com/report/github.com/dmarciniak/loga)
+
 Console UI application to read logs from files, sorting them and allows analize them.
 
 ## Uses
